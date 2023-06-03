@@ -26,6 +26,7 @@ GUESS_SKIN_CHAMPION = None
 GUESS_SKIN_CURRENT_IMAGE = None
 GUESS_SKIN_X = 0
 GUESS_SKIN_Y = 0
+GUESS_SKIN_CORNER = None
 
 
 GUESS_SPELL_ATTEMPT = 0
@@ -40,7 +41,7 @@ scoreboard = {}
 
 
 async def zoom_in():
-    global GUESS_SKIN_ATTEMPT, GUESS_SKIN_Y, GUESS_SKIN_X, GUESS_SKIN_IMAGE
+    global GUESS_SKIN_ATTEMPT, GUESS_SKIN_Y, GUESS_SKIN_X, GUESS_SKIN_IMAGE, GUESS_SKIN_CORNER
     lvl = GUESS_SKIN_ATTEMPT // 10
     image_file = f"./splash/{GUESS_SKIN_IMAGE}"
     image = Image.open(image_file)
@@ -58,13 +59,40 @@ async def zoom_in():
     max_zoom_width = int(width * max_zoom_factor)
     max_zoom_height = int(height * max_zoom_factor)
 
-    if GUESS_SKIN_X == 0 and GUESS_SKIN_Y == 0:
+    if GUESS_SKIN_CORNER is None:
+        GUESS_SKIN_CORNER = random.randint(1, 4)
 
-        # Generate random coordinates for the top left corner of the zoom area
-        x = random.randint(0, width - max_zoom_width)
-        y = random.randint(0, height - max_zoom_height)
-        GUESS_SKIN_X = x
-        GUESS_SKIN_Y = y
+    GUESS_SKIN_CORNER = 2
+    logger.info(GUESS_SKIN_CORNER)
+    if GUESS_SKIN_X == 0 and GUESS_SKIN_Y == 1:
+
+        if GUESS_SKIN_CORNER == 0:  # en bas à droite
+
+            x = width - zoom_width - random.randint(0, width - max_zoom_width)
+            y = height - zoom_height - random.randint(0, height - max_zoom_height)
+            GUESS_SKIN_X = x
+            GUESS_SKIN_Y = y
+
+        elif GUESS_SKIN_CORNER == 2:  # en haut à gauche
+
+            x = random.randint(0, width - max_zoom_width)
+            y = random.randint(0, height - max_zoom_height)
+            GUESS_SKIN_X = x
+            GUESS_SKIN_Y = y
+
+        elif GUESS_SKIN_CORNER == 3:  # en haut à droite
+
+            x = width - max_zoom_width - random.randint(0, width - max_zoom_width)
+            y = random.randint(0, height - max_zoom_height)
+            GUESS_SKIN_X = x
+            GUESS_SKIN_Y = y
+
+        elif GUESS_SKIN_CORNER == 4:  # en bas à gauche
+
+            x = random.randint(0, width - max_zoom_width)
+            y = height - max_zoom_height - random.randint(0, height - max_zoom_height)
+            GUESS_SKIN_X = x
+            GUESS_SKIN_Y = y
     else:
         x = GUESS_SKIN_X
         y = GUESS_SKIN_Y
@@ -121,7 +149,7 @@ async def is_skin_guess_correct(guess):
 # Remove the zoomed image and set all the values to default
 async def resetSkin():
     global GUESS_SKIN_IMAGE, GUESS_SKIN_IS_PLAYING, GUESS_SKIN_CHAMPION, GUESS_SKIN_ATTEMPT, GUESS_SKIN_CURRENT_IMAGE, \
-        GUESS_SKIN_X, GUESS_SKIN_Y, scoreboard
+        GUESS_SKIN_X, GUESS_SKIN_Y, scoreboard, GUESS_SKIN_CORNER
 
     os.remove(str(GUESS_SKIN_CURRENT_IMAGE))
 
@@ -132,6 +160,7 @@ async def resetSkin():
     GUESS_SKIN_CURRENT_IMAGE = None
     GUESS_SKIN_X = 0
     GUESS_SKIN_Y = 0
+    GUESS_SKIN_CORNER = None
     scoreboard = {}
 
 
@@ -301,6 +330,25 @@ async def guess_the_spell(message):
             GUESS_SPELL_CURRENT_IMAGE = await pixelize()
             file = discord.File(str(GUESS_SPELL_CURRENT_IMAGE))
             await channel.send(file=file)
+
+
+@bot.command()
+async def skip(ctx, *args):
+    if GUESS_SPELL_IS_PLAYING:
+        await ctx.send(f"Skipped!")
+        await ctx.send(f"The answer was : {GUESS_SPELL_CHAMPION}")
+        file = discord.File(f"./spell/{GUESS_SPELL_IMAGE}")
+        await ctx.send(file=file)
+        await resetSpell()
+
+    elif GUESS_SKIN_IS_PLAYING:
+        await ctx.send("Skipped!")
+        await ctx.send(f"The answer was {GUESS_SKIN_CHAMPION}")
+        file = discord.File(f"./splash/{GUESS_SKIN_IMAGE}")
+        await ctx.send(file=file)
+        await resetSkin()
+    else:
+        await ctx.send("No game in progress")
 
 
 @bot.event
