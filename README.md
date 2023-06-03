@@ -7,6 +7,16 @@ A Discord Bot to play some League of Legends Quiz
 git clone https://github.com/Theodrob/DiscordLolQuiz
 ```
 
+## Requirements:
+
+```bash
+pip install discord
+```
+
+```bash
+pip install Pillow
+```
+
 Before starting the bot, you will need to add your Discord Token in the variable `TOKEN` on line 18.
 
 Start the bot:
