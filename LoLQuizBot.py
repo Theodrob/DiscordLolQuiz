@@ -42,7 +42,7 @@ scoreboard = {}
 async def zoom_in():
     global GUESS_SKIN_ATTEMPT, GUESS_SKIN_Y, GUESS_SKIN_X, GUESS_SKIN_IMAGE
     lvl = GUESS_SKIN_ATTEMPT // 10
-    image_file = f"./{GUESS_SKIN_IMAGE}"
+    image_file = f"./splash/{GUESS_SKIN_IMAGE}"
     image = Image.open(image_file)
 
     # Get the size of the image
