@@ -17,6 +17,8 @@ pip install discord
 pip install Pillow
 ```
 
+## Start the bot
+
 Before starting the bot, you will need to add your Discord Token in the variable `TOKEN` on line 18.
 
 Start the bot:
