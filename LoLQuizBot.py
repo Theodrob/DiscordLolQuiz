@@ -39,11 +39,12 @@ GUESS_SPELL_Y = 0
 
 scoreboard = {}
 
+path = "."
 
 async def zoom_in():
     global GUESS_SKIN_ATTEMPT, GUESS_SKIN_Y, GUESS_SKIN_X, GUESS_SKIN_IMAGE, GUESS_SKIN_CORNER
     lvl = GUESS_SKIN_ATTEMPT // 10
-    image_file = f"./splash/{GUESS_SKIN_IMAGE}"
+    image_file = f"{path}/splash/{GUESS_SKIN_IMAGE}"
     image = Image.open(image_file)
 
     # Get the size of the image
@@ -102,7 +103,7 @@ async def zoom_in():
     zoomed_image = image.crop((x, y, x + zoom_width, y + zoom_height))
 
     # Define the name of the zoomed image file
-    zoomed_image_file = "./guess_image.jpg"
+    zoomed_image_file = f"{path}/guess_image.jpg"
 
     # Save the image
     zoomed_image.save(zoomed_image_file)
@@ -121,7 +122,7 @@ async def skin(ctx, *args):
         return
 
     # Select a random splash art
-    splash_folder = "./splash"
+    splash_folder = f"{path}/splash"
     img = random.choice(os.listdir(splash_folder))
     #logger.info(img)
 
@@ -185,14 +186,14 @@ async def guess_the_skin(message):
         for player in scoreboard:
             score += f"{player} : {scoreboard[player]} attempts\n"
         await message.reply(f"Correct ! Found in {GUESS_SKIN_ATTEMPT + 1} attempts\n{score}")
-        file = discord.File(f"./splash/{GUESS_SKIN_IMAGE}")
+        file = discord.File(f"{path}/splash/{GUESS_SKIN_IMAGE}")
         await message.reply(file=file)
         await resetSkin()
 
     # Ends the game if 60 attempts were made
     elif GUESS_SKIN_ATTEMPT == 60:
         await channel.send(f"You lost! ... It was {GUESS_SKIN_CHAMPION}...")
-        file = discord.File(f"./splash/{GUESS_SKIN_IMAGE}")
+        file = discord.File(f"{path}/splash/{GUESS_SKIN_IMAGE}")
         await channel.send(file=file)
         await resetSkin()
 
@@ -209,7 +210,7 @@ async def guess_the_skin(message):
 async def pixelize():
     global GUESS_SPELL_ATTEMPT, GUESS_SPELL_Y, GUESS_SPELL_X, GUESS_SPELL_IMAGE
 
-    image_path = f"./spell/{GUESS_SPELL_IMAGE}"
+    image_path = f"{path}/spell/{GUESS_SPELL_IMAGE}"
     if GUESS_SPELL_ATTEMPT > 0:
         pixel_size = 50 // GUESS_SPELL_ATTEMPT
     else:
@@ -230,7 +231,7 @@ async def pixelize():
     # Resize the image to its original size
     final_image = resized_image.resize((width, height), Image.NEAREST)
 
-    pixelized_img = f"./spell/guess_image.png"
+    pixelized_img = f"{path}/spell/guess_image.png"
     final_image.save(pixelized_img)
 
     return pixelized_img
@@ -246,7 +247,7 @@ async def spell(ctx, *args):
         return
 
     # Selects random image
-    splash_folder = "./spell"
+    splash_folder = f"{path}/spell"
     img = random.choice(os.listdir(splash_folder))
     # logger.info(img)
 
@@ -311,14 +312,14 @@ async def guess_the_spell(message):
         for joueur in scoreboard:
             score += f"{joueur} : {scoreboard[joueur]} attempts\n"
         await message.reply(f"Correct ! found in {GUESS_SPELL_ATTEMPT + 1} attempts\n{score}")
-        file = discord.File(f"./spell/{GUESS_SPELL_IMAGE}")
+        file = discord.File(f"{path}/spell/{GUESS_SPELL_IMAGE}")
         await message.reply(file=file)
         await resetSpell()
 
     # Ends the game after 60 attempts
     elif GUESS_SPELL_ATTEMPT == 60:
         await channel.send(f"You lost! ...  The right answer was : {GUESS_SPELL_CHAMPION}...")
-        file = discord.File(f"./spell/{GUESS_SPELL_IMAGE}")
+        file = discord.File(f"{path}/spell/{GUESS_SPELL_IMAGE}")
         await channel.send(file=file)
         await resetSpell()
 
@@ -337,14 +338,14 @@ async def skip(ctx, *args):
     if GUESS_SPELL_IS_PLAYING:
         await ctx.send(f"Skipped!")
         await ctx.send(f"The answer was : {GUESS_SPELL_CHAMPION}")
-        file = discord.File(f"./spell/{GUESS_SPELL_IMAGE}")
+        file = discord.File(f"{path}/spell/{GUESS_SPELL_IMAGE}")
         await ctx.send(file=file)
         await resetSpell()
 
     elif GUESS_SKIN_IS_PLAYING:
         await ctx.send("Skipped!")
         await ctx.send(f"The answer was {GUESS_SKIN_CHAMPION}")
-        file = discord.File(f"./splash/{GUESS_SKIN_IMAGE}")
+        file = discord.File(f"{path}/splash/{GUESS_SKIN_IMAGE}")
         await ctx.send(file=file)
         await resetSkin()
     else:
