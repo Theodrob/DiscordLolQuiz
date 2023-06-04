@@ -26,7 +26,6 @@ GUESS_SKIN_CHAMPION = None
 GUESS_SKIN_CURRENT_IMAGE = None
 GUESS_SKIN_X = None
 GUESS_SKIN_Y = None
-GUESS_SKIN_CORNER = None
 
 
 GUESS_SPELL_ATTEMPT = 0
@@ -41,7 +40,7 @@ scoreboard = {}
 path = "."
 
 async def zoom_in():
-    global GUESS_SKIN_ATTEMPT, GUESS_SKIN_Y, GUESS_SKIN_X, GUESS_SKIN_IMAGE, GUESS_SKIN_CORNER
+    global GUESS_SKIN_ATTEMPT, GUESS_SKIN_Y, GUESS_SKIN_X, GUESS_SKIN_IMAGE
     lvl = GUESS_SKIN_ATTEMPT // 10
     image_file = f"{path}/splash/{GUESS_SKIN_IMAGE}"
     image = Image.open(image_file)
@@ -59,60 +58,17 @@ async def zoom_in():
     max_zoom_width = int(width * max_zoom_factor)
     max_zoom_height = int(height * max_zoom_factor)
 
-    if GUESS_SKIN_CORNER is None:
-        GUESS_SKIN_CORNER = random.randint(1, 4)
+    if GUESS_SKIN_X is None and GUESS_SKIN_Y is None:
+        x = random.randint(0, width - max_zoom_width)
+        y = random.randint(0, height - max_zoom_height)
+        GUESS_SKIN_X = x
+        GUESS_SKIN_Y = y
 
-    logger.info(GUESS_SKIN_CORNER)
+    else:
+        x = GUESS_SKIN_X
+        y = GUESS_SKIN_Y
 
-    if GUESS_SKIN_CORNER == 1:  # Bottom right corner
-        if GUESS_SKIN_X is None and GUESS_SKIN_Y is None:
-            x = width - zoom_width + random.randint(0, width - max_zoom_width)  # Largeur -
-            y = height - zoom_height + random.randint(0, height - max_zoom_height)
-            GUESS_SKIN_X = x
-            GUESS_SKIN_Y = y
-        else:
-            x = GUESS_SKIN_X
-            y = GUESS_SKIN_Y
-
-        zoomed_image = image.crop((x - zoom_width, y - zoom_height, x, y))
-
-    elif GUESS_SKIN_CORNER == 2:  # Top let corner
-        if GUESS_SKIN_X is None and GUESS_SKIN_Y is None:
-            x = random.randint(0, width - max_zoom_width)
-            y = random.randint(0, height - max_zoom_height)
-            GUESS_SKIN_X = x
-            GUESS_SKIN_Y = y
-
-        else:
-            x = GUESS_SKIN_X
-            y = GUESS_SKIN_Y
-
-        zoomed_image = image.crop((x, y, x + zoom_width, y + zoom_height))
-
-    elif GUESS_SKIN_CORNER == 3:  # Top right corner
-        if GUESS_SKIN_X is None and GUESS_SKIN_Y is None:
-            x = width - zoom_width + random.randint(0, width - max_zoom_width)
-            y = random.randint(0, height - max_zoom_height)
-            GUESS_SKIN_X = x
-            GUESS_SKIN_Y = y
-
-        else:
-            x = GUESS_SKIN_X
-            y = GUESS_SKIN_Y
-
-        zoomed_image = image.crop((x - zoom_width, y, x, y + zoom_height))
-
-    else:  # Bottom left corner
-        if GUESS_SKIN_X is None and GUESS_SKIN_Y is None:
-            x = random.randint(0, width - max_zoom_width)
-            y = height - zoom_height + random.randint(0, height - max_zoom_height)
-            GUESS_SKIN_X = x
-            GUESS_SKIN_Y = y
-        else:
-            x = GUESS_SKIN_X
-            y = GUESS_SKIN_Y
-
-        zoomed_image = image.crop((x, y - zoom_height, x + zoom_width, y))
+    zoomed_image = image.crop((x, y, x + zoom_width, y + zoom_height))
 
     # Define the name of the zoomed image file
     zoomed_image_file = f"{path}/guess_image.jpg"
@@ -162,7 +118,7 @@ async def is_skin_guess_correct(guess):
 # Remove the zoomed image and set all the values to default
 async def resetSkin():
     global GUESS_SKIN_IMAGE, GUESS_SKIN_IS_PLAYING, GUESS_SKIN_CHAMPION, GUESS_SKIN_ATTEMPT, GUESS_SKIN_CURRENT_IMAGE, \
-        GUESS_SKIN_X, GUESS_SKIN_Y, scoreboard, GUESS_SKIN_CORNER
+        GUESS_SKIN_X, GUESS_SKIN_Y, scoreboard
 
     os.remove(str(GUESS_SKIN_CURRENT_IMAGE))
 
@@ -173,7 +129,6 @@ async def resetSkin():
     GUESS_SKIN_CURRENT_IMAGE = None
     GUESS_SKIN_X = 0
     GUESS_SKIN_Y = 0
-    GUESS_SKIN_CORNER = None
     scoreboard = {}
 
 
