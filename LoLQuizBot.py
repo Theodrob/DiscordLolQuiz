@@ -24,8 +24,8 @@ GUESS_SKIN_IS_PLAYING = False
 GUESS_SKIN_IMAGE = None
 GUESS_SKIN_CHAMPION = None
 GUESS_SKIN_CURRENT_IMAGE = None
-GUESS_SKIN_X = 0
-GUESS_SKIN_Y = 0
+GUESS_SKIN_X = None
+GUESS_SKIN_Y = None
 GUESS_SKIN_CORNER = None
 
 
@@ -34,8 +34,7 @@ GUESS_SPELL_IS_PLAYING = False
 GUESS_SPELL_IMAGE = None
 GUESS_SPELL_CHAMPION = None
 GUESS_SPELL_CURRENT_IMAGE = None
-GUESS_SPELL_X = 0
-GUESS_SPELL_Y = 0
+
 
 scoreboard = {}
 
@@ -63,44 +62,57 @@ async def zoom_in():
     if GUESS_SKIN_CORNER is None:
         GUESS_SKIN_CORNER = random.randint(1, 4)
 
-    GUESS_SKIN_CORNER = 2
     logger.info(GUESS_SKIN_CORNER)
-    if GUESS_SKIN_X == 0 and GUESS_SKIN_Y == 1:
 
-        if GUESS_SKIN_CORNER == 0:  # en bas à droite
-
-            x = width - zoom_width - random.randint(0, width - max_zoom_width)
-            y = height - zoom_height - random.randint(0, height - max_zoom_height)
+    if GUESS_SKIN_CORNER == 1:  # Bottom right corner
+        if GUESS_SKIN_X is None and GUESS_SKIN_Y is None:
+            x = width - zoom_width + random.randint(0, width - max_zoom_width)  # Largeur -
+            y = height - zoom_height + random.randint(0, height - max_zoom_height)
             GUESS_SKIN_X = x
             GUESS_SKIN_Y = y
+        else:
+            x = GUESS_SKIN_X
+            y = GUESS_SKIN_Y
 
-        elif GUESS_SKIN_CORNER == 2:  # en haut à gauche
+        zoomed_image = image.crop((x - zoom_width, y - zoom_height, x, y))
 
+    elif GUESS_SKIN_CORNER == 2:  # Top let corner
+        if GUESS_SKIN_X is None and GUESS_SKIN_Y is None:
             x = random.randint(0, width - max_zoom_width)
             y = random.randint(0, height - max_zoom_height)
             GUESS_SKIN_X = x
             GUESS_SKIN_Y = y
 
-        elif GUESS_SKIN_CORNER == 3:  # en haut à droite
+        else:
+            x = GUESS_SKIN_X
+            y = GUESS_SKIN_Y
 
-            x = width - max_zoom_width - random.randint(0, width - max_zoom_width)
+        zoomed_image = image.crop((x, y, x + zoom_width, y + zoom_height))
+
+    elif GUESS_SKIN_CORNER == 3:  # Top right corner
+        if GUESS_SKIN_X is None and GUESS_SKIN_Y is None:
+            x = width - zoom_width + random.randint(0, width - max_zoom_width)
             y = random.randint(0, height - max_zoom_height)
             GUESS_SKIN_X = x
             GUESS_SKIN_Y = y
 
-        elif GUESS_SKIN_CORNER == 4:  # en bas à gauche
+        else:
+            x = GUESS_SKIN_X
+            y = GUESS_SKIN_Y
 
+        zoomed_image = image.crop((x - zoom_width, y, x, y + zoom_height))
+
+    else:  # Bottom left corner
+        if GUESS_SKIN_X is None and GUESS_SKIN_Y is None:
             x = random.randint(0, width - max_zoom_width)
-            y = height - max_zoom_height - random.randint(0, height - max_zoom_height)
+            y = height - zoom_height + random.randint(0, height - max_zoom_height)
             GUESS_SKIN_X = x
             GUESS_SKIN_Y = y
-    else:
-        x = GUESS_SKIN_X
-        y = GUESS_SKIN_Y
+        else:
+            x = GUESS_SKIN_X
+            y = GUESS_SKIN_Y
 
-
-    # Extract the zoomed area from the image
-    zoomed_image = image.crop((x, y, x + zoom_width, y + zoom_height))
+        zoomed_image = image.crop((x, y - zoom_height, x + zoom_width, y))
 
     # Define the name of the zoomed image file
     zoomed_image_file = f"{path}/guess_image.jpg"
@@ -208,7 +220,7 @@ async def guess_the_skin(message):
 
 
 async def pixelize():
-    global GUESS_SPELL_ATTEMPT, GUESS_SPELL_Y, GUESS_SPELL_X, GUESS_SPELL_IMAGE
+    global GUESS_SPELL_ATTEMPT, GUESS_SPELL_IMAGE
 
     image_path = f"{path}/spell/{GUESS_SPELL_IMAGE}"
     if GUESS_SPELL_ATTEMPT > 0:
@@ -275,8 +287,8 @@ async def is_spell_guess_correct(guess):
 
 # Removes the image file and reset values to default
 async def resetSpell():
-    global GUESS_SPELL_IMAGE, GUESS_SPELL_IS_PLAYING, GUESS_SPELL_CHAMPION, GUESS_SPELL_ATTEMPT, GUESS_SPELL_CURRENT_IMAGE, \
-        GUESS_SPELL_X, GUESS_SPELL_Y, scoreboard
+    global GUESS_SPELL_IMAGE, GUESS_SPELL_IS_PLAYING, GUESS_SPELL_CHAMPION, GUESS_SPELL_ATTEMPT, \
+        GUESS_SPELL_CURRENT_IMAGE, scoreboard
 
     os.remove(str(GUESS_SPELL_CURRENT_IMAGE))
 
@@ -285,14 +297,12 @@ async def resetSpell():
     GUESS_SPELL_IMAGE = None
     GUESS_SPELL_CHAMPION = None
     GUESS_SPELL_CURRENT_IMAGE = None
-    GUESS_SPELL_X = 0
-    GUESS_SPELL_Y = 0
     scoreboard = {}
 
 
 async def guess_the_spell(message):
     global GUESS_SPELL_IMAGE, GUESS_SPELL_IS_PLAYING, GUESS_SPELL_CHAMPION, GUESS_SPELL_ATTEMPT, \
-        GUESS_SPELL_CURRENT_IMAGE, GUESS_SPELL_X, GUESS_SPELL_Y, scoreboard
+        GUESS_SPELL_CURRENT_IMAGE, scoreboard
 
     # Removes the "?g" at the beginning of the message
     guess = message.content[len(prefix):]
